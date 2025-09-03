@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import 'remixicon/fonts/remixicon.css'
 import 'animate.css';
+import { toast, ToastContainer } from 'react-toastify'
 
 const data = [
   {
@@ -41,12 +42,55 @@ const data = [
 ]
 
 const App = () => {
+
+  const [src, setSrc] = useState(null)
+  const [option, setOption] = useState("male")
+
+  const generateRandomNumber = ()=> {
+    const num = Math.floor(Math.random() * 99) + 1
+    return num
+  }
+
+  const generate = ()=> {
+    const obj = data.find((item)=> item.value === option)
+    const url = obj.url
+    if(option === "male" || "female"){
+      const imageUrl = `${url}/${generateRandomNumber()}.jpg`
+      setSrc(imageUrl)
+    }
+    else{
+      const uniqueValue = Date.now()
+      const imageUrl = `${url}${uniqueValue}`
+      setSrc(imageUrl)
+    }
+  }
+
+  const onOptionChange = (e)=> {
+    setOption(e.target.value)
+  }
+  
+  const download = (url)=> {
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${Date.now()}.jpg`
+    a.click()
+    a.remove()
+  }
+
+  const copy = (url)=> {
+    navigator.clipboard.writeText(url)
+    toast.success("Image Url Copied", {position: "top-center"})
+  }
+  
+  useEffect(()=> {
+    generate()
+  },[option])
+
   return (
     <div className='animate__animated animate__fadeIn overflow-hidden min-h-screen flex text-white items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' >
       <div className='animate__animated animate__slideInUp gap-6 flex flex-col items-center w-full max-w-md rounded-2xl shadow-xl backdrop-blur-2xl border border-slate-700 p-10 '>
         <img 
-          src="https://png.pngtree.com/png-vector/20220817/ourmid/pngtree-man-avatar-with-circle-frame-vector-ilustration-png-image_6110328.png" 
-          alt="avater"
+          src={src || "/avt.png"}          alt="avater"
           className='w-32 h-32 rounded-full border-4 border-slate-700 shadow-lg object-cover ' 
         />
         <div className='text-center'>
@@ -55,7 +99,7 @@ const App = () => {
         </div>
 
         <div className='w-full space-y-4'>
-          <select className='bg-slate-900/60 w-full p-3 rounded-xl' name="" id="">
+          <select className='bg-slate-900/60 w-full p-3 rounded-xl' name="" value={option} onChange={onOptionChange}>
             {
               data.map((item, index)=> (
                 <option key={index} value={item.value} >{item.label} </option>
@@ -64,28 +108,29 @@ const App = () => {
           </select>
 
           <div className='bg-slate-900/60 w-full p-3 rounded-xl'>
-            http://localhost:27017
+            {src}
           </div>
         </div>
 
         <div className='flex gap-4 w-full'>
-          <button className='flex-1 bg-gradient-to-r from-rose-500 to-orange-600 font-medium rounded-lg px-4 py-2 hover:scale-105 transition-transform'>
+          <button onClick={generate} className='flex-1 bg-gradient-to-r from-rose-500 to-orange-600 font-medium rounded-lg px-4 py-2 hover:scale-105 transition-transform'>
             <i className="ri-arrow-right-up-line mr-1"></i>
             Change
           </button>
 
-          <button className='flex-1 bg-gradient-to-r from-green-500 to-cyan-600 font-medium rounded-lg px-4 py-2 hover:scale-105 transition-transform'>
+          <button onClick={()=> download(src)} className='flex-1 bg-gradient-to-r from-green-500 to-cyan-600 font-medium rounded-lg px-4 py-2 hover:scale-105 transition-transform'>
             <i className="ri-download-line mr-1"></i>
             Download
           </button>
 
-          <button className='flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 font-medium rounded-lg px-4 py-2 hover:scale-105 transition-transform'>
+          <button onClick={()=> copy(src)} className='flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 font-medium rounded-lg px-4 py-2 hover:scale-105 transition-transform'>
             <i className="ri-file-copy-line mr-1"></i>
             Copy
           </button>
         </div>
 
       </div>
+      <ToastContainer />
     </div>
   )
 }
