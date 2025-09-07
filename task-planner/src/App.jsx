@@ -2,20 +2,30 @@ import React, { useEffect, useState } from 'react'
 import 'animate.css';
 import 'remixicon/fonts/remixicon.css'
 import '@ant-design/v5-patch-for-react-19';
-import { Badge, Button, Card, Form, Input, Modal, Select, Tag } from "antd"
+import { Badge, Button, Card, DatePicker, Empty, Form, Input, Modal, Select, Tag } from "antd"
 import { Plus } from "lucide-react"
+import { usePlanner } from './store/usePlanner';
 
 const App = () => {
 
+  const [form] = Form.useForm()
   const [open, setOpen] = useState(false)
   const [timer, setTimer] = useState(new Date().toLocaleTimeString())
+  const {tasks, addTask} = usePlanner()
+  const higestTask = tasks.filter((item)=>item.priority === "highest")
+  const mediumTask = tasks.filter((item)=>item.priority === "medium")
+  const lowestTask = tasks.filter((item)=>item.priority === "lowest")
 
   const createTask = (value)=> {
-    console.log(value)
+    value.status = "pending",
+    value.id = Date.now()
+    addTask(value)
+    handleClose()
   }
 
   const handleClose = ()=> {
     setOpen(false)
+    form.resetFields()
   }
 
   useEffect(()=> {
@@ -30,37 +40,51 @@ const App = () => {
 
   return (
     <div className='bg-gray-200 h-screen overflow-hidden'>
-      <nav className='bg-white h-[60px] fixed top-0 left-0 w-full flex justify-between items-center px-8 '>
+      <nav className='bg-gradient-to-r from-rose-500 via-slate-800 to-slate-900 text-white h-[60px] fixed top-0 left-0 w-full flex justify-between items-center px-8 '>
         <div className='flex items-center'>
           <button className='w-10 h-10 bg-[radial-gradient(circle_at_center,_#00c6ff_0%,_#0072ff_50%,_hsl(237.3,_78.4384552963829%,_46.435774028573626%)_100%)] rounded-full text-xl font-medium text-white'>PL</button>
           <h1 className='text-xl font-bold  px text-blue-600'>anner</h1>
         </div>
 
-        <h1 className='text-2xl font-bold'>{timer} </h1>
+        <div className='flex items-center gap-4'>
+          <h1 className='text-2xl font-bold lg:block hidden'>{timer} </h1>
+          <DatePicker />
+          <button onClick={()=> setOpen(true)} className=' hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
+            <Plus  className='h-5 w-5'/>
+            Add Task
+          </button>
+        </div>
       </nav>
 
-      <section className='fixed top-[60px] p-8 left-0 h-[calc(100%-120px)] w-full overflow-x-auto overflow-y-hidden grid grid-cols-3 gap-8'>
-        <div className='h-full min-h-0'>
+      <section className='fixed top-[60px] p-8 left-0 h-[calc(100%-120px)] w-full overflow-x-auto lg:overflow-y-hidden overflow-y-auto grid lg:grid-cols-3 gap-8'>
+        <div className='lg:h-full lg:min-h-0 h-[400px] '>
           <Badge.Ribbon 
             text="Highest" 
             className='z-200 font-medium bg-gradient-to-br !from-indigo-600 !via-pink-500  !to-rose-500 ' 
           />
             <div className='bg-white rounded-lg h-full min-h-0 overflow-auto p-6 '>
-              <button onClick={()=> setOpen(true)} className=' hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
-                <Plus  className='h-5 w-5'/>
-                Add Task
-              </button>
               <div className='flex flex-col gap-8 mt-6'>
                 {
-                  Array(10).fill(0).map((item, index)=> (
+                  higestTask.length === 0 && (
+                    <>
+                      <Empty description="there is no task added in this planner" />
+                      <button onClick={()=> setOpen(true)} className='w-fit mx-auto hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
+                        <Plus  className='h-5 w-5'/>
+                        Add Task
+                      </button>
+                    </>
+                  )
+                }
+                {
+                  higestTask.map((item, index)=> (
                     <Card key={index} hoverable>
                       <Card.Meta
-                        title="Upload videos"
-                        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi facilis est aperiam eius eum numquam harum laborum nam odio quas!"
+                        title={item.title}
+                        description={item.description}
                       />
                       <div className='mt-3 flex justify-between items-center'>
                         <div>
-                          <Tag color="blue" >Pending</Tag>
+                          <Tag color="blue" className='capitalize' >{item.status}</Tag>
                           <Tag color="magenta-inverse" >Delete</Tag>
                         </div>
                         <Select size="small"  className='' placeholder="Change Status" >
@@ -76,27 +100,34 @@ const App = () => {
             </div>
         </div>
 
-        <div className='h-full min-h-0'>
+        <div className='lg:h-full lg:min-h-0 h-[400px]'>
           <Badge.Ribbon 
             text="Medium" 
             className='z-20 font-medium bg-gradient-to-br !from-orange-600 !via-yellow-500  !to-amber-500 ' 
           />
             <div className='bg-white rounded-lg h-full min-h-0 overflow-auto p-6 '>
-              <button onClick={()=> setOpen(true)} className=' hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
-                <Plus  className='h-5 w-5'/>
-                Add Task
-              </button>
               <div className='flex flex-col gap-8 mt-6'>
                 {
-                  Array(10).fill(0).map((item, index)=> (
+                  mediumTask.length === 0 && (
+                    <>
+                      <Empty description="there is no task added in this planner" />
+                      <button onClick={()=> setOpen(true)} className='w-fit mx-auto hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
+                        <Plus  className='h-5 w-5'/>
+                        Add Task
+                      </button>
+                    </>
+                  )
+                }
+                {
+                  mediumTask.map((item, index)=> (
                     <Card key={index} hoverable>
                       <Card.Meta
-                        title="Upload videos"
-                        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi facilis est aperiam eius eum numquam harum laborum nam odio quas!"
+                        title={item.title}
+                        description={item.description}
                       />
                       <div className='mt-3 flex justify-between items-center'>
                         <div>
-                          <Tag color="blue" >Pending</Tag>
+                          <Tag color="blue" className='capitalize' >{item.status}</Tag>
                           <Tag color="magenta-inverse" >Delete</Tag>
                         </div>
                         <Select size="small"  className='' placeholder="Change Status" >
@@ -112,27 +143,34 @@ const App = () => {
             </div>
         </div>
 
-        <div className='h-full min-h-0'>
+        <div className='lg:h-full lg:min-h-0 h-[400px]'>
           <Badge.Ribbon 
             text="Lowest" 
             className='z-20 font-medium bg-gradient-to-br !from-cyan-600 !via-green-500  !to-rose-500 ' 
           />
             <div className='bg-white rounded-lg h-full min-h-0 overflow-auto p-6 '>
-              <button onClick={()=> setOpen(true)} className=' hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
-                <Plus  className='h-5 w-5'/>
-                Add Task
-              </button>
               <div className='flex flex-col gap-8 mt-6'>
                 {
-                  Array(10).fill(0).map((item, index)=> (
+                  lowestTask.length === 0 && (
+                    <>
+                      <Empty description="there is no task added in this planner" />
+                      <button onClick={()=> setOpen(true)} className='w-fit mx-auto hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-blue-600 via-cyan-400 to-indigo-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
+                        <Plus  className='h-5 w-5'/>
+                        Add Task
+                      </button>
+                    </>
+                  )
+                }
+                {
+                  lowestTask.map((item, index)=> (
                     <Card key={index} hoverable>
                       <Card.Meta
-                        title="Upload videos"
-                        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi facilis est aperiam eius eum numquam harum laborum nam odio quas!"
+                        title={item.title}
+                        description={item.description}
                       />
                       <div className='mt-3 flex justify-between items-center'>
                         <div>
-                          <Tag color="blue" >Pending</Tag>
+                          <Tag color="blue" className='capitalize' >{item.status}</Tag>
                           <Tag color="magenta-inverse" >Delete</Tag>
                         </div>
                         <Select size="small"  className='' placeholder="Change Status" >
@@ -149,13 +187,13 @@ const App = () => {
         </div>
       </section>
 
-      <footer className='bg-white h-[60px] fixed bottom-0 left-0 w-full flex justify-between items-center px-8 '>
+      <footer className='bg-gradient-to-l from-rose-500 via-slate-800 to-slate-900 text-white h-[60px] fixed bottom-0 left-0 w-full flex justify-between items-center px-8 '>
         <h1 className='text-2xl font-bold'>{timer} </h1>
-        <a target='_blank' href="https://github.com/ManjitSinghJii" className='hover:underline text-gray-400'>Manjit Singh Github</a>
+        <a target='_blank' href="https://github.com/ManjitSinghJii" className='hover:underline text-white'>Manjit Singh Github</a>
       </footer>
       <Modal open={open} footer={null} onCancel={handleClose} maskClosable={false} >
         <h1 className='mb-4 text-lg font-medium'>New task!</h1>
-        <Form onFinish={createTask}>
+        <Form onFinish={createTask} form={form}>
           <Form.Item
             name="title"
             rules={[{required: true}]}
@@ -174,6 +212,17 @@ const App = () => {
               placeholder='Task Descriptions'
               rows={5}
             />
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            rules={[{required: true}]}
+          >
+            <Select size='large' placeholder="Select Priority" >
+              <Select.Option value="highest" >Highest</Select.Option>
+              <Select.Option value="medium" >Medium</Select.Option>
+              <Select.Option value="lowest" >Lowest</Select.Option>
+            </Select>
           </Form.Item>
 
           <Form.Item>
