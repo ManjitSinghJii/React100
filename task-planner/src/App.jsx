@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react'
 import 'animate.css';
 import 'remixicon/fonts/remixicon.css'
 import '@ant-design/v5-patch-for-react-19';
-import { Badge, Button, Card, DatePicker, Empty, Form, Input, Modal, Select, Tag } from "antd"
+import { Badge, Button, Card, DatePicker, Empty, Form, Input, Modal, Popconfirm, Select, Tag } from "antd"
 import { Plus } from "lucide-react"
 import { usePlanner } from './store/usePlanner';
+import moment from "moment"
 
 const App = () => {
 
   const [form] = Form.useForm()
   const [open, setOpen] = useState(false)
   const [timer, setTimer] = useState(new Date().toLocaleTimeString())
-  const {tasks, addTask} = usePlanner()
+  const {tasks, addTask, deleteTask, updateStatus, deleteAll } = usePlanner()
   const higestTask = tasks.filter((item)=>item.priority === "highest")
   const mediumTask = tasks.filter((item)=>item.priority === "medium")
   const lowestTask = tasks.filter((item)=>item.priority === "lowest")
@@ -19,6 +20,7 @@ const App = () => {
   const createTask = (value)=> {
     value.status = "pending",
     value.id = Date.now()
+    value.createdAt = new Date()
     addTask(value)
     handleClose()
   }
@@ -53,6 +55,13 @@ const App = () => {
             <Plus  className='h-5 w-5'/>
             Add Task
           </button>
+
+          <Popconfirm title="Do you want to delete all.." onConfirm={deleteAll} >
+            <button className=' hover:scale-105 transition-transform duration-300 bg-gradient-to-br from-pink-600 via-red-400 to-pink-500 text-white flex gap-1 font-medium px-3 text-sm rounded items-center py-2'>
+              <i className="ri-delete-bin-6-line"></i>
+              Deleten All Task
+            </button>
+          </Popconfirm>
         </div>
       </nav>
 
@@ -84,15 +93,32 @@ const App = () => {
                       />
                       <div className='mt-3 flex justify-between items-center'>
                         <div>
-                          <Tag color="blue" className='capitalize' >{item.status}</Tag>
-                          <Tag color="magenta-inverse" >Delete</Tag>
+                          {
+                            item.status === "pending" 
+                            &&
+                            <Tag color="blue" className='capitalize' >{item.status}</Tag>
+                          }
+                          {
+                            item.status === "inProgress" 
+                            &&
+                            <Tag color="cyan" className='capitalize' >{item.status}</Tag>
+                          }
+                          {
+                            item.status === "completed" 
+                            &&
+                            <Tag color="green-inverse" className='capitalize' >{item.status}</Tag>
+                          }
+                          <Popconfirm title="Do you want to delete this task" onConfirm={()=> deleteTask(item.id)}>
+                            <Tag color="magenta-inverse"  >Delete</Tag>
+                          </Popconfirm>
                         </div>
-                        <Select size="small"  className='' placeholder="Change Status" >
+                        <Select size="small"  className='' placeholder="Change Status"  onChange={(status)=>updateStatus(item.id, status) }>
                           <Select.Option value="pending" >Pending</Select.Option>
                           <Select.Option value="inProgress" >In Progress</Select.Option>
                           <Select.Option value="completed" >Completed</Select.Option>
                         </Select>
                       </div>
+                      <label className='text-slate-600 text-xs flex mt-3'>{moment(item.createdAt).format("DD MMM YYYY hh mm A")} </label>
                     </Card>
                   ))
                 }
@@ -127,15 +153,32 @@ const App = () => {
                       />
                       <div className='mt-3 flex justify-between items-center'>
                         <div>
-                          <Tag color="blue" className='capitalize' >{item.status}</Tag>
-                          <Tag color="magenta-inverse" >Delete</Tag>
+                          {
+                            item.status === "pending" 
+                            &&
+                            <Tag color="blue" className='capitalize' >{item.status}</Tag>
+                          }
+                          {
+                            item.status === "inProgress" 
+                            &&
+                            <Tag color="cyan" className='capitalize' >{item.status}</Tag>
+                          }
+                          {
+                            item.status === "completed" 
+                            &&
+                            <Tag color="green-inverse" className='capitalize' >{item.status}</Tag>
+                          }
+                          <Popconfirm title="Do you want to delete this task" onConfirm={()=> deleteTask(item.id)}>
+                            <Tag color="magenta-inverse"  >Delete</Tag>
+                          </Popconfirm>
                         </div>
-                        <Select size="small"  className='' placeholder="Change Status" >
+                        <Select size="small"  className='' placeholder="Change Status"  onChange={(status)=>updateStatus(item.id, status) }>
                           <Select.Option value="pending" >Pending</Select.Option>
                           <Select.Option value="inProgress" >In Progress</Select.Option>
                           <Select.Option value="completed" >Completed</Select.Option>
                         </Select>
                       </div>
+                      <label className='text-slate-600 text-xs flex mt-3'>{moment(item.createdAt).format("DD MMM YYYY hh mm A")} </label>
                     </Card>
                   ))
                 }
@@ -170,15 +213,32 @@ const App = () => {
                       />
                       <div className='mt-3 flex justify-between items-center'>
                         <div>
-                          <Tag color="blue" className='capitalize' >{item.status}</Tag>
-                          <Tag color="magenta-inverse" >Delete</Tag>
+                          {
+                            item.status === "pending" 
+                            &&
+                            <Tag color="blue" className='capitalize' >{item.status}</Tag>
+                          }
+                          {
+                            item.status === "inProgress" 
+                            &&
+                            <Tag color="cyan" className='capitalize' >{item.status}</Tag>
+                          }
+                          {
+                            item.status === "completed" 
+                            &&
+                            <Tag color="green-inverse" className='capitalize' >{item.status}</Tag>
+                          }
+                          <Popconfirm title="Do you want to delete this task" onConfirm={()=> deleteTask(item.id)}>
+                            <Tag color="magenta-inverse"  >Delete</Tag>
+                          </Popconfirm>
                         </div>
-                        <Select size="small"  className='' placeholder="Change Status" >
+                        <Select size="small"  className='' placeholder="Change Status"  onChange={(status)=>updateStatus(item.id, status) }>
                           <Select.Option value="pending" >Pending</Select.Option>
                           <Select.Option value="inProgress" >In Progress</Select.Option>
                           <Select.Option value="completed" >Completed</Select.Option>
                         </Select>
                       </div>
+                      <label className='text-slate-600 text-xs flex mt-3'>{moment(item.createdAt).format("DD MMM YYYY hh mm A")} </label>
                     </Card>
                   ))
                 }
@@ -188,7 +248,7 @@ const App = () => {
       </section>
 
       <footer className='bg-gradient-to-l from-rose-500 via-slate-800 to-slate-900 text-white h-[60px] fixed bottom-0 left-0 w-full flex justify-between items-center px-8 '>
-        <h1 className='text-2xl font-bold'>{timer} </h1>
+        <h1 className='text-2xl font-bold'>Total Task {tasks.length} </h1>
         <a target='_blank' href="https://github.com/ManjitSinghJii" className='hover:underline text-white'>Manjit Singh Github</a>
       </footer>
       <Modal open={open} footer={null} onCancel={handleClose} maskClosable={false} >

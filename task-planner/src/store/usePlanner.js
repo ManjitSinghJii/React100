@@ -6,6 +6,20 @@ export const usePlanner = create(persist(
         tasks: [],
         addTask: (payload)=>set((state)=> ({
             tasks: [...state.tasks, payload]
+        })),
+        deleteTask: (id)=>set((state)=>({
+            tasks: state.tasks.filter((task)=> task.id !== id)
+        })),
+        updateStatus: (id, status)=>set((state)=>({
+            tasks: state.tasks.filter((task)=> {
+                if(task.id === id)
+                    task.status = status
+
+                return task
+            })
+        })),
+        deleteAll: ()=>set(()=>({
+            tasks: []
         }))
     }),
     {name: "planner"}
